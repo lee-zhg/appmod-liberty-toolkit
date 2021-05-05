@@ -3,7 +3,7 @@ COPY . /project
 WORKDIR /project/CustomerOrderServicesProject
 RUN mvn clean package
 
-FROM ibmcom/websphere-liberty:kernel-java8-ibmjava-ubi
+FROM image-registry-openshift-image-registry.appmod-keybank-73aebe06726e634c608c4167edcc2aeb-0000.us-east.containers.appdomain.cloud/bk-base-image-bitbucket/kb-base-image-liberty:0.0.1
 
 ARG SSL=false
 ARG MP_MONITORING=false
