@@ -10,8 +10,50 @@ metadata:
       intermediate sha tag to the image-url
     kubectl.kubernetes.io/last-applied-configuration: |
       {"apiVersion":"tekton.dev/v1beta1","kind":"Task","metadata":{"annotations":{"app.openshift.io/description":"Executes logic to build, tag and push a container image using the intermediate sha tag to the image-url","app.openshift.io/vcs-ref":"master","app.openshift.io/vcs-uri":"https://github.com/IBM/ibm-garage-tekton-tasks","description":"Executes logic to build, tag and push a container image using the intermediate sha tag to the image-url"},"labels":{"version":"2.5.0"},"name":"ibm-build-tag-push-v2-5-0","namespace":"tools"},"spec":{"params":[{"name":"git-url"},{"default":"master","name":"git-revision"},{"default":"/source","name":"source-dir"},{"default":"","name":"image-server"},{"default":"","name":"image-namespace"},{"default":"","name":"image-repository"},{"default":"","name":"image-tag"},{"default":"quay.io/buildah/stable:v1.15.0","name":"BUILDER_IMAGE"},{"default":"./Dockerfile","name":"DOCKERFILE"},{"default":".","name":"CONTEXT"},{"default":"false","name":"TLSVERIFY"},{"default":"docker","name":"FORMAT"},{"default":"overlay","description":"Set buildah storage driver","name":"STORAGE_DRIVER"}],"stepTemplate":{"volumeMounts":[{"mountPath":"$(params.source-dir)","name":"source"}]},"steps":[{"env":[{"name":"GIT_PASSWORD","valueFrom":{"secretKeyRef":{"key":"password","name":"git-credentials","optional":true}}},{"name":"GIT_USERNAME","valueFrom":{"secretKeyRef":{"key":"username","name":"git-credentials","optional":true}}}],"image":"quay.io/ibmgaragecloud/alpine-git","name":"git-clone","script":"set +x\nif [[ -n \"${GIT_USERNAME}\" ]] \u0026\u0026 [[ -n \"${GIT_PASSWORD}\" ]]; then\n    git clone \"$(echo $(params.git-url) | awk -F '://' '{print $1}')://${GIT_USERNAME}:${GIT_PASSWORD}@$(echo $(params.git-url) | awk -F '://' '{print $2}')\" $(params.source-dir)\nelse\n    set -x\n    git clone $(params.git-url) $(params.source-dir)\nfi\nset -x\ncd $(params.source-dir)\ngit checkout $(params.git-revision)\n"},{"env":[{"name":"REGISTRY_USER","valueFrom":{"secretKeyRef":{"key":"REGISTRY_USER","name":"registry-access","optional":true}}},{"name":"REGISTRY_PASSWORD","valueFrom":{"secretKeyRef":{"key":"REGISTRY_PASSWORD","name":"registry-access","optional":true}}}],"image":"$(params.BUILDER_IMAGE)","name":"build","script":"APP_IMAGE=\"$(params.image-server)/$(params.image-namespace)/$(params.image-repository):$(params.image-tag)\"\nbuildah --layers --storage-driver=$(params.STORAGE_DRIVER) bud --format=$(params.FORMAT) --tls-verify=$(params.TLSVERIFY) -f $(params.DOCKERFILE) -t ${APP_IMAGE} $(params.CONTEXT)\nset +x\nif [[ -n \"${REGISTRY_USER}\" ]] \u0026\u0026 [[ -n \"${REGISTRY_PASSWORD}\" ]] \u0026\u0026 [[ \"$(params.image-server)\" != \"image-registry.openshift-image-registry.svc:5000\"  ]]; then\n  buildah login -u \"${REGISTRY_USER}\" -p \"${REGISTRY_PASSWORD}\" \"$(params.image-server)\"\n  echo \"buildah login -u \"${REGISTRY_USER}\" -p \"xxxxx\" \"$(params.image-server)\"\"\nfi\nset -x\nbuildah --storage-driver=$(params.STORAGE_DRIVER) push --tls-verify=$(params.TLSVERIFY) --digestfile ./image-digest ${APP_IMAGE} docker://${APP_IMAGE}\n","securityContext":{"privileged":true},"volumeMounts":[{"mountPath":"/var/lib/containers","name":"varlibcontainers"}],"workingdir":"$(params.source-dir)"}],"volumes":[{"emptyDir":{},"name":"varlibcontainers"},{"emptyDir":{},"name":"source"}]}}
+  creationTimestamp: "2021-05-04T00:50:27Z"
+  generation: 25
+  labels:
+    version: 2.5.0
+  managedFields:
+  - apiVersion: tekton.dev/v1alpha1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:app.openshift.io/description: {}
+          f:app.openshift.io/vcs-ref: {}
+          f:app.openshift.io/vcs-uri: {}
+          f:description: {}
+          f:kubectl.kubernetes.io/last-applied-configuration: {}
+        f:labels:
+          .: {}
+          f:version: {}
+      f:spec:
+        .: {}
+        f:params: {}
+        f:stepTemplate:
+          .: {}
+          f:name: {}
+          f:resources: {}
+          f:volumeMounts: {}
+        f:volumes: {}
+    manager: unknown
+    operation: Update
+    time: "2021-05-04T00:50:27Z"
+  - apiVersion: tekton.dev/v1beta1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:spec:
+        f:steps: {}
+    manager: Mozilla
+    operation: Update
+    time: "2021-05-12T19:03:53Z"
   name: ibm-build-tag-push-v2-5-0
-  namespace: appmod-liberty-toolkit-github
+  namespace: lz-appmod-liberty-toolkit
+  resourceVersion: "47709949"
+  selfLink: /apis/tekton.dev/v1beta1/namespaces/lz-appmod-liberty-toolkit/tasks/ibm-build-tag-push-v2-5-0
+  uid: f3fbe982-0c1a-4899-a055-96b5f8d48241
 spec:
   params:
   - name: git-url
@@ -103,20 +145,20 @@ spec:
     image: $(params.BUILDER_IMAGE)
     name: build
     resources: {}
-    script: "APP_IMAGE=\"$(params.image-server)/$(params.image-namespace)/$(params.image-repository):$(params.image-tag)\"\necho
+    script: "set +x\nAPP_IMAGE=\"$(params.image-server)/$(params.image-namespace)/$(params.image-repository):$(params.image-tag)\"\necho
       \"LZ$$$$$\" \nREGISTRY_USER=\"IAM#lijing@us.ibm.com\"\nREGISTRY_PASSWORD=\"kXTQMRCZbbIbZG1EnDuOiD7RBQjvmD-Yz28kDyMbxQc\"\nREGISTRY_URL=\"image-registry-openshift-image-registry.appmod-keybank-73aebe06726e634c608c4167edcc2aeb-0000.us-east.containers.appdomain.cloud\"\necho
       \"${REGISTRY_URL}\"\necho \"$(params.image-server)\" \necho \"${REGISTRY_USER}\"
-      \necho \"${REGISTRY_PASSWORD}\"\necho login -u \"${REGISTRY_USER}\" -p \"${REGISTRY_PASSWORD}\"
-      \"${REGISTRY_URL}\"\nbuildah login -u \"${REGISTRY_USER}\" -p \"${REGISTRY_PASSWORD}\"
-      \"${REGISTRY_URL}\"\necho \"LZ$$$$$\" \nbuildah --layers --storage-driver=$(params.STORAGE_DRIVER)
-      bud --format=$(params.FORMAT) --tls-verify=$(params.TLSVERIFY) -f $(params.DOCKERFILE)
-      -t ${APP_IMAGE} $(params.CONTEXT)\nset +x\nif [[ -n \"${REGISTRY_USER}\" ]]
-      && [[ -n \"${REGISTRY_PASSWORD}\" ]] && [[ \"$(params.image-server)\" != \"image-registry.openshift-image-registry.svc:5000\"
-      \ ]]; then\n  buildah login -u \"${REGISTRY_USER}\" -p \"${REGISTRY_PASSWORD}\"
-      \"$(params.image-server)\"\n  echo \"buildah login -u \"${REGISTRY_USER}\" -p
-      \"xxxxx\" \"$(params.image-server)\"\"\nfi\nset -x\nbuildah --storage-driver=$(params.STORAGE_DRIVER)
-      push --tls-verify=$(params.TLSVERIFY) --digestfile ./image-digest ${APP_IMAGE}
-      docker://${APP_IMAGE}\n"
+      \necho \"${REGISTRY_PASSWORD}\"\necho login -u \"${REGISTRY_USER}\" -p \"${REGISTRY_PASSWORD}\"\n\"${REGISTRY_URL}\"\nbuildah
+      login -u \"${REGISTRY_USER}\" -p \"${REGISTRY_PASSWORD}\"\n\"${REGISTRY_URL}\"\necho
+      \"LZ$$$$$\" \n\n\n\nbuildah --layers --storage-driver=$(params.STORAGE_DRIVER)
+      bud\n\n\n--format=$(params.FORMAT) --tls-verify=$(params.TLSVERIFY) -f\n\n\n$(params.DOCKERFILE)
+      -t ${APP_IMAGE} $(params.CONTEXT)\n\n\n\nset +x\n\n\n\nif [[ -n \"${REGISTRY_USER}\"
+      ]] && [[ -n \"${REGISTRY_PASSWORD}\" ]] && [[\n\n\n\"$(params.image-server)\"
+      !=\n\n\n\"image-registry.openshift-image-registry.svc:5000\"  ]]; then\n  buildah
+      login -u \"${REGISTRY_USER}\" -p \"${REGISTRY_PASSWORD}\" \"$(params.image-server)\"\n
+      \ echo \"buildah login -u \"${REGISTRY_USER}\" -p \"xxxxx\" \"$(params.image-server)\"\"\nfi\n\n\n\nset
+      -x\n\n\n\nbuildah --storage-driver=$(params.STORAGE_DRIVER) push\n\n\n--tls-verify=$(params.TLSVERIFY)
+      --digestfile ./image-digest\n\n\n${APP_IMAGE} docker://${APP_IMAGE}\n"
     securityContext:
       privileged: true
     volumeMounts:
