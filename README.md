@@ -86,12 +86,16 @@ The following tools are included in the shell installer:
     oc sync --version
     ```
 
-### Step 2. Clone the repo
+### Step 2. Fork/Clone the repo
+
+1. Open a browser and navigate to https://github.com/lee-zhg/appmod-liberty-toolkit.
+
+1. `Fork` the repo by selecting `Fork` button in the top-right corner.
 
 1. Setup environment variable.
 
     ```
-    export GIT_URL=https://github.com/lee-zhg/appmod-liberty-toolkit
+    export GIT_URL=https://github.com/<your github ID>/appmod-liberty-toolkit
     ```
 
 1. Clone the repo locally.
