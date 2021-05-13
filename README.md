@@ -137,7 +137,7 @@ The steps in this section creates Tekton tasks, pipeline and etc in your namespa
 
     ```
     oc pipeline --tekton \
-        https://github.com/lee-zhg/appmod-liberty-toolkit \
+        $GIT_URL \
         --pipeline ibm-appmod-liberty \
         -p scan-image=true \
         -p health-endpoint=/ \
@@ -145,23 +145,23 @@ The steps in this section creates Tekton tasks, pipeline and etc in your namespa
 
     ```
     - base-image-github - is the namespace in your OpenShift cluster.
-    - https://github.com/lee-zhg/appmod-liberty-toolkit - is the github repo url.
+    - $GIT_URL - is the github repo url. https://github.com/<your github ID>/appmod-liberty-toolkit
     - tekton - you are creating a tekton pipeline.
     - pipeline ibm-java-maven - is the pipeline template used to create your new pipeline.
 
-1. When prompted, enter your `git username`.
+1. If prompted, enter your `git username`.
 
-1. When prompted, enter your `git password` or `personal access token`. `Git personal access token` is preferred for security reason.
+1. If prompted, enter your `git password` or `personal access token`. `Git personal access token` is preferred for security reason.
 
-1. When prompted, select if you `Enable the pipeline to scan the image for vulnerabilities?`
+1. If prompted, select if you `Enable the pipeline to scan the image for vulnerabilities?`
 
-1. When prompted, select if you `Enable the pipeline to lint the Dockerfile for best practices?`
+1. If prompted, select if you `Enable the pipeline to lint the Dockerfile for best practices?`
 
 1. The `cloud native toolkit` takes your inputs, and create Tekton pipeline and associated resources in your namespace which is `base-image-github` by default.
 
     ```
     oc pipeline --tekton \
-        https://github.com/lee-zhg/appmod-liberty-toolkit \
+        $GIT_URL \
         --pipeline ibm-appmod-liberty \
         -p scan-image=true \
         -p health-endpoint=/ \
@@ -220,10 +220,10 @@ The steps below assume that you have built your base image by completing steps i
 1. Identify URL of the internal OpenShift registry.
 
     ```
-    export REGISTRY_HOST=$(oc get route default-route -n openshift-image-registry -o jsonpath='{.spec.host}')
+    export REGISTRY_HOST=$(oc get route image-registry -n openshift-image-registry -o jsonpath='{.spec.host}')
     echo $REGISTRY_HOST
 
-    default-route-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud
+    image-registry-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud
     ```
 
 1. Identify your custom Base Java Container Image tag.
@@ -231,17 +231,17 @@ The steps below assume that you have built your base image by completing steps i
     ```
     oc get imagestream -n base-image-github
 
-    NAME                    IMAGE REPOSITORY                                                                           TAGS                          UPDATED
-    base-image-liberty      image-registry.openshift-image-registry.svc:5000/base-image-github/base-image-liberty      0.0.5,ee7b1a1,0.0.4,40f434b   50 minutes ago
+    NAME                    IMAGE REPOSITORY                                                                           TAGS                                               UPDATED
+    base-image-liberty      image-registry.openshift-image-registry.svc:5000/base-image-github/base-image-liberty      0.0.12,555ece1,0.0.11,f7b68aa,0.0.10 + 4 more...   5 days ago
     ```
 
-1. In the above example output, `base-image-github/base-image-liberty` is the container image in the interanl OpenShift registry. `0.0.5` is the image tag of the latest image. So, the example container image locates at 
+1. In the above example output, `base-image-github/base-image-liberty` is the container image in the interanl OpenShift registry. `0.0.12` is the image tag of the latest image. So, the example container image locates at 
 
     ```
-    export MY_BASE_IMAGE=$REGISTRY_HOST/base-image-github/base-image-liberty:0.0.5
+    export MY_BASE_IMAGE=$REGISTRY_HOST/base-image-github/base-image-liberty:0.0.12
     echo $MY_BASE_IMAGE
 
-    default-route-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud/base-image-github/base-image-liberty:0.0.5
+    image-registry-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud/base-image-github/base-image-liberty:0.0.12
     ```
 
 1. Open `Dockerfile` in a file editor.
@@ -254,7 +254,7 @@ The steps below assume that you have built your base image by completing steps i
 to the content in `$MY_BASE_IMAGE`. For example,
 
     ```
-    default-route-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud/base-image-github/base-image-liberty:0.0.5
+    FROM image-registry-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud/base-image-github/base-image-liberty:0.0.12
     ```
 
 1. Save the change.
@@ -299,10 +299,10 @@ This repo uses the internal OpenShift registry to store your custom Base Java Co
 1. Identify URL of the internal OpenShift registry.
 
     ```
-    export REGISTRY_HOST=$(oc get route default-route -n openshift-image-registry -o jsonpath='{.spec.host}')
+    export REGISTRY_HOST=$(oc get route image-registry -n openshift-image-registry -o jsonpath='{.spec.host}')
     echo $REGISTRY_HOST
 
-    default-route-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud
+    image-registry-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud
     ```
 
 1. Identify your custom Base Java Container Image tag.
@@ -311,16 +311,16 @@ This repo uses the internal OpenShift registry to store your custom Base Java Co
     oc get imagestream -n appmod-liberty-toolkit-github
 
     NAME                     IMAGE REPOSITORY                                                                                        TAGS            UPDATED
-    appmod-liberty-toolkit   image-registry.openshift-image-registry.svc:5000/appmod-liberty-toolkit-github/appmod-liberty-toolkit   0.0.4,8c017ec   3 minutes ago
+    appmod-liberty-toolkit   image-registry.openshift-image-registry.svc:5000/appmod-liberty-toolkit-github/appmod-liberty-toolkit   0.0.9,d6023fd,0.0.8,0.0.7,cf65f92 + 8 more...   4 hours ago
     ```
 
-1. In the above example output, `appmod-liberty-toolkit-github/appmod-liberty-toolkit` is the container image in the interanl OpenShift registry. `0.04` is the image tag of the latest image. So, the example container image locates at 
+1. In the above example output, `appmod-liberty-toolkit-github/appmod-liberty-toolkit` is the container image in the interanl OpenShift registry. `0.0.8` is the image tag of the latest image. So, the example container image locates at 
 
     ```
-    export MY_IMAGE=$REGISTRY_HOST/appmod-liberty-toolkit-github/appmod-liberty-toolkit:0.0.4
+    export MY_IMAGE=$REGISTRY_HOST/appmod-liberty-toolkit-github/appmod-liberty-toolkit:0.0.8
     echo $MY_IMAGE
 
-    default-route-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud/appmod-liberty-toolkit-github/appmod-liberty-toolkit:0.0.4
+    default-route-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud/appmod-liberty-toolkit-github/appmod-liberty-toolkit:0.0.8
     ```
 
 1. Take note of your container image information as you will need it as the base image when you create container image of your business applications. Your image may have different path and tag.
@@ -349,7 +349,8 @@ The steps below help verify your custom Base Java Container Image.
     ```
     docker image ls
 
-    default-route-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud/appmod-liberty-toolkit-github/appmod-liberty-toolkit   0.0.4                   fb3fcff3ffeb   8 minutes ago   641MB
+    REPOSITORY                                                                                                                                                                               TAG                     IMAGE ID       CREATED             SIZE
+    image-registry-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud/appmod-liberty-toolkit-github/appmod-liberty-toolkit   0.0.8                   94dc88613a0e   4 hours ago         641MB
     ```
 
 1. Run your custom Base Java Container Image locally.
@@ -385,7 +386,32 @@ The steps below help verify your custom Base Java Container Image.
     The command output show that your container is running as the default user.
 
 
-### Step 11. Cleanup
+### Step 11. Verify your application
+
+In addition to build container image for your application, the tekton pipeline also deployed your new container image to the same namespace in the OpenShift cluster. The steps in this section provides instruction to access your application.
+
+1. Identify the host of the your running application.
+
+    ```
+    export APP_HOST=$(oc get route appmod-liberty-toolkit -n appmod-liberty-toolkit-github -o jsonpath='{.spec.host}')
+    echo $APP_HOST
+
+    appmod-liberty-toolkit-appmod-liberty-toolkit-github.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud
+    ```
+
+1. Identify the URL to access the your running application.
+
+    ```
+    export APP_URL=https://$APP_HOST
+    echo $APP_URL
+
+    https://appmod-liberty-toolkit-appmod-liberty-toolkit-github.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud
+    ```
+
+1. You may access your running application via the above $APP_URL.
+
+
+### Step 12. Cleanup
 
 1. Stop and remove the container.
 
