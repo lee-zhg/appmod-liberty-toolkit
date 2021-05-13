@@ -240,13 +240,33 @@ The steps below assume that you have built your base image by completing steps i
     default-route-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud/base-image-github/base-image-liberty:0.0.5
     ```
 
-1. Take note of your container image information as you will need it as the base image when you create container image of your business applications. Your image may have different path and tag.
+1. Open `Dockerfile` in a file editor.
+
+1. Replace line
+
+    ```
+    FROM image-registry-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud/base-image-bitbucket/base-image-liberty:0.0.9
+    ```
+to the content in `$MY_BASE_IMAGE`. For example,
+
+    ```
+    default-route-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud/base-image-github/base-image-liberty:0.0.5
+    ```
+
+1. Save the change.
+
+1. If you made changes in the `Dockerfile` locally, you need to push changes to your repo.
+
+    - git add .
+    - git commit -m "Dockerfile was updated"
+    - git push
 
 
 ### Step 8. Create your custom Base Java Container Image from Open Liberty
 
 Now, the tekton pipeline and associated resources are ready to help create your custom Base Java Container Image from Open Liberty.
 
+If you made chages to your `Dockerfile` and 
 1. Create your custom Base Java Container Image from Open Liberty by starting your pipeline.
 
     ```
