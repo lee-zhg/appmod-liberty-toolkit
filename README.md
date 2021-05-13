@@ -320,7 +320,7 @@ This repo uses the internal OpenShift registry to store your custom Base Java Co
     export MY_IMAGE=$REGISTRY_HOST/appmod-liberty-toolkit-github/appmod-liberty-toolkit:0.0.8
     echo $MY_IMAGE
 
-    default-route-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud/appmod-liberty-toolkit-github/appmod-liberty-toolkit:0.0.8
+    image-registry-openshift-image-registry.leez-roks-aiops-6ccd7f378ae819553d37d5f2ee142bd6-0000.us-south.containers.appdomain.cloud/appmod-liberty-toolkit-github/appmod-liberty-toolkit:0.0.8
     ```
 
 1. Take note of your container image information as you will need it as the base image when you create container image of your business applications. Your image may have different path and tag.
