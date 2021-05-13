@@ -18,7 +18,7 @@ You are going to create your base image via a tekton pipeline deployed in OpenSh
 - helm-release
 - gitops
 
-!["tekton-pipeline"](doc/images/tekton-pipeline-01.png)
+!["tekton-pipeline"](doc/images/tekton-pipeline-02.png)
 
 You can add, remove and modify the tasks in the sample pipeline based on your requirements.
 
